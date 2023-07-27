@@ -1,4 +1,6 @@
 using PriceTracker;
+using PriceTracker.Configuration;
+using PriceTracker.Services;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureHostConfiguration(hostConfig =>
@@ -9,6 +11,9 @@ IHost host = Host.CreateDefaultBuilder(args)
     })
     .ConfigureServices((context, services) =>
     {
+        services.Configure<Api>(context.Configuration.GetSection("Api"));
+        services.AddSingleton<ApiService>();
+
         services.AddHostedService<Worker>();
     })
     .Build();
