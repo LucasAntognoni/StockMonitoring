@@ -37,26 +37,16 @@ namespace PriceTracker.Services
                     email.To.Add(new MailboxAddress(recipient.Name, recipient.Address));
                 }
 
-                email.Subject = "Alerta";
+                email.Subject = string.Format("[{0}] [{1}] price alert!", operation, ticker);
 
                 BodyBuilder emailBodyBuilder = new BodyBuilder();
 
-                if (operation == "SELL") {
-                    emailBodyBuilder.TextBody = string.Format(
-                        "{0} has reached (or passed) the desired selling price.\n\tReference price: {1}\n\tCurrent price: {2}",
-                        ticker,
-                        referencePrice,
-                        currentPrice
-                    );
-                }
-                else {
-                    emailBodyBuilder.TextBody = string.Format(
-                        "{0} has reached (or is under) the desired buying price.\n\tReference price: {1}\n\tCurrent price: {2}",
-                        ticker,
-                        referencePrice,
-                        currentPrice
-                    );
-                }
+                emailBodyBuilder.TextBody = string.Format(
+                    "{0} has reached the desired price.\n\n-Reference price: R${1}\n\n-Current price: R${2}",
+                    ticker,
+                    referencePrice,
+                    currentPrice
+                );
                 
                 email.Body = emailBodyBuilder.ToMessageBody();                
 
