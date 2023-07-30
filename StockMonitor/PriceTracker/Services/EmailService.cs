@@ -57,12 +57,10 @@ namespace PriceTracker.Services
                     await smtpClient.SendAsync(email);
                     await smtpClient.DisconnectAsync(true);
                 }
-
-                _logger.LogInformation("E-mail sent!");
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                _logger.LogError("Failed to send e-mail. Exception: {ExceptionMessage}", ex.Message);
+                _logger.LogError("Failed to send e-mail. Exception: {e}", e.ToString());
             }
         }
     }

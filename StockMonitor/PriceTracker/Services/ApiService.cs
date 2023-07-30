@@ -29,6 +29,11 @@ namespace PriceTracker.Services
             {
                 HttpResponseMessage response = await _httpClient.GetAsync(uri);
 
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    throw new Exception("No data available at the moment");
+                }
+
                 string responseString = await response.Content.ReadAsStringAsync();
 
                 JObject responseJson = JObject.Parse(responseString);
@@ -37,6 +42,14 @@ namespace PriceTracker.Services
                 {
                     _logger.LogError(responseJson.SelectToken("error").ToString());
                 }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to fetch ticker price. Exception: {e}", e.ToString());
+            }
+            
+            return null;
+        }
 
                 JToken data = responseJson.SelectToken("$.results[0].historicalDataPrice[0]");
 
