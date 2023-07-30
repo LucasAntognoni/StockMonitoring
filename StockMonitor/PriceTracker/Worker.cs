@@ -2,16 +2,19 @@ namespace PriceTracker.Services;
 
 public class Worker : BackgroundService
 {
+    private readonly IHostApplicationLifetime _hostApplicationLifetime;
+
     private readonly ILogger<Worker> _logger;
 
     private readonly ApiService _apiService;
     private readonly EmailService _emailService;
 
-    public Worker(ILogger<Worker> logger, ApiService apiService, EmailService emailService)
+    public Worker(IHostApplicationLifetime hostApplicationLifetime, ILogger<Worker> logger, ApiService apiService, EmailService emailService)
     {
         _logger = logger;
         _apiService = apiService;
         _emailService = emailService;
+        _hostApplicationLifetime = hostApplicationLifetime;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -20,7 +23,7 @@ public class Worker : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            await Task.Delay(60000, stoppingToken);
+            _hostApplicationLifetime.StopApplication();
         }
     }
 }
