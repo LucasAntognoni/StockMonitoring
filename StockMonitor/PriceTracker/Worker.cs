@@ -5,16 +5,13 @@ public class Worker : BackgroundService
     private readonly ILogger<Worker> _logger;
 
     private readonly ApiService _apiService;
+    private readonly EmailService _emailService;
 
-    private readonly string _ticker;
-
-    public Worker(ILogger<Worker> logger, ApiService apiService)
+    public Worker(ILogger<Worker> logger, ApiService apiService, EmailService emailService)
     {
         _logger = logger;
-
         _apiService = apiService;
-
-        _ticker = Environment.GetCommandLineArgs()[1];
+        _emailService = emailService;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -23,9 +20,7 @@ public class Worker : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            await _apiService.GetStockData(_ticker);
-
-            await Task.Delay(900000, stoppingToken);
+            await Task.Delay(60000, stoppingToken);
         }
     }
 }
