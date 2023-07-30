@@ -2,6 +2,7 @@
 
 using Newtonsoft.Json.Linq;
 
+using PriceTracker.Models;
 using PriceTracker.Settings;
 
 namespace PriceTracker.Services
@@ -21,9 +22,9 @@ namespace PriceTracker.Services
             _httpClient = new HttpClient();
         }
 
-        public async Task GetTickerData(string ticker)
+        public async Task<HistoricalDataPrice?> GetTickerPrice(string ticker, int timestamp)
         {
-            string uri = string.Format("{0}/quote/{1}?range=1d&interval=1d", _settings.Url, ticker);
+            string uri = string.Format("{0}/quote/{1}?range=1d&interval=1m", _settings.Url, ticker);
 
             try
             {
@@ -36,11 +37,15 @@ namespace PriceTracker.Services
 
                 string responseString = await response.Content.ReadAsStringAsync();
 
-                JObject responseJson = JObject.Parse(responseString);
+                JObject json = JObject.Parse(responseString);
 
-                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                List<JToken> data = json.SelectTokens(
+                    String.Format("$.results[0].historicalDataPrice[?(@.date > {0})]", timestamp)
+                ).ToList();
+
+                if (data.Any())
                 {
-                    _logger.LogError(responseJson.SelectToken("error").ToString());
+                    return data.Last().ToObject<HistoricalDataPrice>();
                 }
             }
             catch (Exception e)
