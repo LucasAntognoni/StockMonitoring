@@ -1,6 +1,5 @@
-using PriceTracker;
-using PriceTracker.Configuration;
 using PriceTracker.Services;
+using PriceTracker.Settings;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureHostConfiguration(hostConfig =>
@@ -11,8 +10,13 @@ IHost host = Host.CreateDefaultBuilder(args)
     })
     .ConfigureServices((context, services) =>
     {
-        services.Configure<Api>(context.Configuration.GetSection("Api"));
-        services.AddSingleton<ApiService>();
+        services.Configure<ApiSettings>(context.Configuration.GetSection("API"));
+        services.Configure<SmtpSettings>(context.Configuration.GetSection("SMTP"));
+        services.Configure<EmailSettings>(context.Configuration.GetSection("Sender"));
+        services.Configure<List<EmailSettings>>(context.Configuration.GetSection("Recipients"));
+        
+        services.AddTransient<ApiService>();
+        services.AddTransient<EmailService>();
 
         services.AddHostedService<Worker>();
     })
