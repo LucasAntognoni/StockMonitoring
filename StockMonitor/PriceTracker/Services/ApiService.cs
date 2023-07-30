@@ -2,7 +2,7 @@
 
 using Newtonsoft.Json.Linq;
 
-using PriceTracker.Configuration;
+using PriceTracker.Settings;
 
 namespace PriceTracker.Services
 {
@@ -10,19 +10,20 @@ namespace PriceTracker.Services
     {
         private readonly ILogger<ApiService> _logger;
 
+        private readonly ApiSettings _settings;
+        
         private readonly HttpClient _httpClient;
-        private readonly string? _apiUrl;
 
-        public ApiService(IOptions<Api> options, ILogger<ApiService> logger)
+        public ApiService(IOptions<ApiSettings> settings, ILogger<ApiService> logger)
         {
             _logger = logger;
-            _apiUrl = options.Value.Url;
+            _settings = settings.Value;
             _httpClient = new HttpClient();
         }
 
-        public async Task GetStockData(string ticker)
+        public async Task GetTickerData(string ticker)
         {
-            string uri = string.Format("{0}/quote/{1}?range=1d&interval=1d", _apiUrl, ticker);
+            string uri = string.Format("{0}/quote/{1}?range=1d&interval=1d", _settings.Url, ticker);
 
             try
             {
