@@ -51,14 +51,26 @@ namespace PriceTracker.Services
             return null;
         }
 
-                JToken data = responseJson.SelectToken("$.results[0].historicalDataPrice[0]");
+        public async Task<bool> ValidateTicker(string ticker)
+        {
+            string uri = string.Format("{0}/available?search={1}", _settings.Url, ticker);
 
-                _logger.LogInformation(data.ToString());
-            }
-            catch (Exception ex)
+            try
             {
-                _logger.LogError(ex.Message);
+                HttpResponseMessage response = await _httpClient.GetAsync(uri);
+
+                string responseString = await response.Content.ReadAsStringAsync();
+
+                JObject responseJson = JObject.Parse(responseString);
+
+                return responseJson["stocks"].Values().Contains(ticker);
             }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed to validate ticker. Exception: {e}", e.ToString());
+            }
+
+            return false;
         }
     }
 }
